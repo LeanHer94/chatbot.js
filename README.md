@@ -13,7 +13,7 @@
 
 ### ------ To Start Bot -----
 * npm run dev
-* F5 to attach vs code debugger to nodemon process
+* F5 to attach vs code debugger to nodemon process 9229
 * port 3120
 
 ### ------ To Talk with the bot ----
