@@ -1,11 +1,10 @@
 # chatbot.js
 
 ## ENVIRONMENT
-* Install SQL Server Express (And Management Studio if you want to make your own queries). https://www.microsoft.com/en-us/sql-server/sql-server-downloads
 * npm i to install dependencies
 
 ### ------ To Generate SQL Databse Schema -------
-* Execute Database Script found on chatbot.api.js
+* Check chatbot.api.js
 
 ### ------ To Start API ------
 * npm run dev
