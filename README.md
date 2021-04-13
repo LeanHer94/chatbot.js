@@ -2,6 +2,7 @@
 
 ## ENVIRONMENT
 * npm i to install dependencies
+* Ask for environment file .env
 
 ### ------ To Generate SQL Databse Schema -------
 * Check chatbot.api.js
