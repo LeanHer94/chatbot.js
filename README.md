@@ -2,6 +2,7 @@
 
 ## ENVIRONMENT
 * npm i to install dependencies
+* Ask for environment file .env
 
 ### ------ To Generate SQL Databse Schema -------
 * Check chatbot.api.js
@@ -10,13 +11,11 @@
 * npm run dev
 * F5 to attach vs code debugger to nodemon process
 * port 3000
-* Ask for environment file .env
 
 ### ------ To Start Bot -----
 * npm run dev
 * F5 to attach vs code debugger to nodemon process 9229
 * port 3120
-* Ask for environment file .env
 
 ### ------ To Talk with the bot ----
 * Open https://webchat.freenode.net/ on your browser
