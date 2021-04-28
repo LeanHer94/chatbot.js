@@ -11,14 +11,25 @@ const ircConfig = {
   channel: '#lxbuniquekdskds'
 }
 
-const commands = {
+type Function = (timezone: string) => Promise<any>;
+type Message = (timezone: string, result: string | number) => string;
+interface Command {
+  fn(timezone: string): Promise<any>;
+  msg(timezone: string, result: string | number): string;
+}
+
+const commands: { [id: string]: Command } = {
   "!timeat": {
-    fn: async (timezone: string) => { return await axios.post(`${api}/timeat`, { Timezone: timezone }) },
-    msg: (timezone: string, result: string | number) => `Current time at ${timezone} is ${result}`
+    fn: async (tz) => { return await axios.post(`${api}/timeat`, { Timezone: tz }) },
+    msg: (tz, result)  => `Current time at ${tz} is ${result}`
   },
   "!timepopularity": {
-    fn: async (timezone: string) => { return await axios.post(`${api}/timepopularity`, { Timezone: timezone }) },
-    msg: (timezone: string, result: string | number) => `${timezone} has been searched ${result} times`
+    fn: async (tz) => { return await axios.post(`${api}/timepopularity`, { Timezone: tz }) },
+    msg: (tz, result) => `${tz} has been searched ${result} times`
+  },
+  "!commands": {
+    fn: async () => { return Promise.resolve({ data: "!timeat and !timepopularity" }) },
+    msg: (tz, result) => `Available commands are: ${result}`
   }
 }
 
@@ -31,7 +42,7 @@ var client = new irc.Client(
     retryCount: 3
   });
 
-client.addListener('message', async function (from, to, message) {
+client.addListener('message', async function (from: any, to: any, message: string) {
   const words = message.split(' ');
   const command = words[0];
 
