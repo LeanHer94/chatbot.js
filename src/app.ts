@@ -1,4 +1,5 @@
 import axios from "axios";
+import { AppError } from "error-api.hl/lib";
 import { chatbotApi } from './config';
 
 const api = chatbotApi;
@@ -15,13 +16,13 @@ type Function = (timezone: string) => Promise<any>;
 type Message = (timezone: string, result: string | number) => string;
 interface Command {
   fn(timezone: string): Promise<any>;
-  msg(timezone: string, result: string | number): string;
+  msg(timezone: string, result: string | number | AppError): string;
 }
 
 const commands: { [id: string]: Command } = {
   "!timeat": {
     fn: async (tz) => { return await axios.post(`${api}/timeat`, { Timezone: tz }) },
-    msg: (tz, result)  => `Current time at ${tz} is ${result}`
+    msg: (tz, result)  => result instanceof AppError ? result.description : `Current time at ${tz} is ${result}`
   },
   "!timepopularity": {
     fn: async (tz) => { return await axios.post(`${api}/timepopularity`, { Timezone: tz }) },
