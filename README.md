@@ -2,6 +2,7 @@
 
 ## ENVIRONMENT
 * npm i to install dependencies
+* If the "gyp ERR! find VS" persists try running "npm i --global --production windows-build-tools" (project compiles anyway)
 * Ask for environment file .env
 
 ### ------ To Generate SQL Databse Schema -------
