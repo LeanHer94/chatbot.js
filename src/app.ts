@@ -49,8 +49,9 @@ client.addListener('message', async function (from: any, to: any, message: strin
   if (commands[command]) {
     client.say(ircConfig.channel, 'Looking for your request...');
 
-    const result = await commands[command].fn(words[1]);
-    const message = commands[command].msg(words[1], result.data);
+    const timezone = words[1];
+    const result = await commands[command].fn(timezone);
+    const message = commands[command].msg(timezone, result.data);
 
     client.say(ircConfig.channel, message);
   } else {
