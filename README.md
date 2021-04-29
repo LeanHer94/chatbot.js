@@ -1,4 +1,4 @@
-# chatbot.js ![status](https://github.com/leandro-hl/airlines.js/actions/workflows/node.js.yml/badge.svg)
+# chatbot.js ![status](https://github.com/leandro-hl/chatbot.js/actions/workflows/node.js.yml/badge.svg)
 
 ## ENVIRONMENT
 * npm i to install dependencies
