@@ -8,7 +8,8 @@
     "url": "git+https://github.com/LeanHer94/chatbot.js.git"
   },
   "scripts": {
-    "start": "tsc && node dist/app.js",
+    "build": "tsc --build",
+    "start": "node dist/app.js",
     "dev": "nodemon --config nodemon.json --inspect-brk=9229 src/app.ts"
   },
   "author": "Leandro Hereñu",
