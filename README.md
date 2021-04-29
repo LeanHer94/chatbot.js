@@ -1,8 +1,7 @@
-# chatbot.js
+# chatbot.js ![status](https://github.com/leandro-hl/chatbot.js/actions/workflows/node.js.yml/badge.svg)
 
 ## ENVIRONMENT
 * npm i to install dependencies
-* If the "gyp ERR! find VS" persists try running "npm i --global --production windows-build-tools" (project compiles anyway)
 * Ask for environment file .env
 
 ### ------ To Generate SQL Databse Schema -------
@@ -15,5 +14,6 @@
 
 ### ------ To Talk with the bot ----
 * Open https://webchat.freenode.net/ on your browser
-* Enter your NickName and join the channel configured: #lxbuniquekdskds
+* Enter your NickName and join the channel you want to talk on.
+* use join endpoint to tell to the bot which channel should it use. It's a get request so you can simply use your browser.
 * !timepopularity accepts timezones, prefixes and also suffixes (like the Vancouver example)
