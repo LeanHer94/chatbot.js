@@ -1,6 +1,6 @@
 import axios from "axios";
 import express from "express";
-import { AppError } from "error-api.hl/lib";
+import { AppError, handleError } from "error-api.hl/lib";
 import { port, chatbotApi, maxChannels } from "./config";
 
 const api = chatbotApi;
@@ -75,27 +75,45 @@ app.get("/switch/:oldchannel/:newchannel", async (req, res, next) => {
 });
 
 const join = (res: any, channel: string) => {
-  client.join(channel, () => {
-    client.addListener("message", async function (from: any, to: any, message: string) {
-      const words = message.split(" ");
-      const command = words[0];
+  try {
+    client.join(channel, () => {
+      client.addListener("message", async function (from: any, to: any, message: string) {
+        const words = message.split(" ");
+        const command = words[0];
 
-      if (commands[command]) {
-        client.say(channel, "Looking for your request...");
+        if (commands[command]) {
+          client.say(channel, "Looking for your request...");
 
-        const timezone = words[1];
-        const result = await commands[command].fn(timezone);
-        const message = commands[command].msg(timezone, result.data);
+          const timezone = words[1];
+          const result = await commands[command].fn(timezone);
+          const message = commands[command].msg(timezone, result.data);
 
-        client.say(channel, message);
-      } else {
-        client.say(channel, "That's not an available command you idiot");
-      }
+          client.say(channel, message);
+        } else {
+          client.say(channel, "That's not an available command you idiot");
+        }
+      });
+
+      res.send(`${ircConfig.nick} joined to channel ${channel}.`);
     });
+  } catch (err) {
+    const apperr = new AppError(`${err.message}: ${err.stack}`, err);
 
-    res.send(`${ircConfig.nick} joined to channel ${channel}.`);
-  });
+    throw apperr;
+  }
 };
+
+app.use(async (err: Error, req: any, res: any, next: any) => {
+  await handleError(err, res);
+});
+
+process.on("uncaughtException", (error: Error) => {
+  handleError(error);
+});
+
+process.on("unhandledRejection", (reason: any) => {
+  handleError(reason);
+});
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
