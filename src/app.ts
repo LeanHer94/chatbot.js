@@ -1,7 +1,7 @@
 import axios from "axios";
 import express from "express";
 import { AppError, handleError } from "error-api.hl/lib";
-import { port, chatbotApi, maxChannels } from "./config";
+import { port, chatbotApi, maxChannels, host } from "./config";
 
 const api = chatbotApi;
 const irc = require("irc");
@@ -50,6 +50,10 @@ const client = new irc.Client(`${ircConfig.server}`, ircConfig.nick, {
 
 const app = express();
 const mxChannels = maxChannels ? +maxChannels : 1;
+
+app.get("/test", (req, res, next) => {
+  res.send("Test if this really works");
+});
 
 app.get("/join/:channel", async (req, res, next) => {
   if ((client.opt.channels.length as number) == mxChannels) {
@@ -116,5 +120,5 @@ process.on("unhandledRejection", (reason: any) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`App listening at ${host}:${port}`);
 });
