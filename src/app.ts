@@ -1,122 +1,132 @@
 import axios from "axios";
-import express from "express";
-import { AppError, handleError } from "error-api.hl/lib";
-import { port, chatbotApi, maxChannels, host } from "./config";
+import { AppError } from "error-api.hl/lib";
+import { chatbotApi, maxChannels, host } from "./config";
 
 const api = chatbotApi;
 const irc = require("irc");
 
-type Function = (timezone: string) => Promise<any>;
-type Message = (timezone: string, result: string | number) => string;
 interface Command {
-  fn(timezone: string): Promise<any>;
-  msg(timezone: string, result: string | number | AppError): string;
+  execute(channel: any, words: string[]): Promise<void>;
 }
 
-const commands: { [id: string]: Command } = {
-  "!timeat": {
-    fn: async tz => {
-      return await axios.post(`${api}/timeat`, { Timezone: tz });
-    },
-    msg: (tz, result) =>
-      result instanceof AppError
-        ? result.description
-        : `Current time at ${tz} is ${result}`
-  },
-  "!timepopularity": {
-    fn: async tz => {
-      return await axios.post(`${api}/timepopularity`, { Timezone: tz });
-    },
-    msg: (tz, result) => `${tz} has been searched ${result} times`
-  },
-  "!commands": {
-    fn: async () => {
-      return Promise.resolve({ data: "!timeat and !timepopularity" });
-    },
-    msg: (tz, result) => `Available commands are: ${result}`
+abstract class TimezoneCommand implements Command {
+  async execute(channel: any, words: string[]): Promise<void> {
+    client.say(channel, "Looking for your request...");
+
+    const timezone = words[1];
+    const result = await this.fn(timezone);
+    const message = this.msg(timezone, result.data);
+
+    client.say(channel, message);
   }
-};
+
+  abstract fn(timezone: string): Promise<any>;
+  abstract msg(timezone: string, result: string | number | AppError): string;
+}
 
 const nick = "hl-timezone-guru";
+const defaultChannel = "#hl-default";
 const client = new irc.Client("irc.freenode.net", nick, {
   port: 6667,
   retryCount: 3,
+  channels: [defaultChannel],
   sasl: true,
   userName: nick,
   password: "cckhXpydpJYupMgA1XuB"
 });
 
-const app = express();
-const mxChannels = maxChannels ? +maxChannels : 1;
+const listener = async function (channel: string, message: string) {
+  const words = message.split(" ");
+  const typeKey = words[0];
 
-app.get("/test", (req, res, next) => {
-  res.send("Test if this really works");
-});
+  const type = commands[typeKey];
 
-app.get("/join/:channel", async (req, res, next) => {
-  if ((client.opt.channels.length as number) == mxChannels) {
-    res.send(
-      `You cannot connect to more than ${mxChannels}. Use switch/:oldchannel/:newchannel to switch.`
-    );
+  if (type) {
+    const commandKey = words[1];
+    const command = type[commandKey];
 
-    return;
+    if (command) {
+      await command.execute(channel, words);
+
+      return;
+    }
   }
 
-  const channel = `#${req.params.channel}`;
-  join(res, channel);
-});
+  client.say(channel, "That's not an available command you idiot");
+};
 
-app.get("/switch/:oldchannel/:newchannel", async (req, res, next) => {
-  const oldchannel = `#${req.params.oldchannel}`;
-  const newchannel = `#${req.params.newchannel}`;
-  const message = `I'm living this shit but you can find me on ${newchannel}`;
+const addListener = (channel: string) => {
+  client.addListener(
+    `message${channel}`,
+    async function (nick: any, text: any, message: string) {
+      await listener(channel, text);
+    }
+  );
+};
 
-  client.part(oldchannel, message, () => {
-    join(res, newchannel);
+const join = (channel: string) => {
+  return client.join(channel, () => {
+    addListener(channel);
   });
-});
+};
 
-const join = (res: any, channel: string) => {
-  try {
-    client.join(channel, () => {
-      client.addListener("message", async function (from: any, to: any, message: string) {
-        const words = message.split(" ");
-        const command = words[0];
+const commands: { [id: string]: { [id: string]: Command | TimezoneCommand } } = {
+  timezone: {
+    timeat: <TimezoneCommand>{
+      fn: async (tz: any) => {
+        return await axios.post(`${api}/timeat`, { Timezone: tz });
+      },
+      msg: (timezone: string, result: string | number | AppError) =>
+        result instanceof AppError
+          ? result.description
+          : `Current time at ${timezone} is ${result}`
+    },
+    timepopularity: <TimezoneCommand>{
+      fn: async (tz: any) => {
+        return await axios.post(`${api}/timepopularity`, { Timezone: tz });
+      },
+      msg: (tz: any, result: any) => `${tz} has been searched ${result} times`
+    }
+  },
+  general: {
+    commands: {
+      execute: async (channel: any) => {
+        const message = "timeat, timepopularity, join, swicht";
 
-        if (commands[command]) {
-          client.say(channel, "Looking for your request...");
+        client.say(channel, message);
+      }
+    }
+  },
+  channel: {
+    join: {
+      execute: async (channel: any, words: string[]) => {
+        const mxChannels = maxChannels ? +maxChannels : 1;
 
-          const timezone = words[1];
-          const result = await commands[command].fn(timezone);
-          const message = commands[command].msg(timezone, result.data);
+        if ((client.opt.channels.length as number) == mxChannels) {
+          client.say(
+            channel,
+            `You cannot connect to more than ${mxChannels}. Use channel switch oldchannel newchannel to switch.`
+          );
 
-          client.say(channel, message);
-        } else {
-          client.say(channel, "That's not an available command you idiot");
+          return;
         }
-      });
 
-      res.send(`${nick} joined to channel ${channel}.`);
-    });
-  } catch (err) {
-    const apperr = new AppError(`${err.message}: ${err.stack}`, err);
+        const channelToJoin = words[2].includes("#") ? words[2] : `#${words[2]}`;
 
-    throw apperr;
+        join(channelToJoin);
+      }
+    },
+    switch: {
+      execute: async (channel: any, words: string[]) => {
+        const oldchannel = `#${channel}`;
+        const newchannel = `#${words[3]}`;
+
+        client.part(oldchannel, "", () => {
+          join(newchannel);
+        });
+      }
+    }
   }
 };
 
-app.use(async (err: Error, req: any, res: any, next: any) => {
-  await handleError(err, res);
-});
-
-process.on("uncaughtException", (error: Error) => {
-  handleError(error);
-});
-
-process.on("unhandledRejection", (reason: any) => {
-  handleError(reason);
-});
-
-app.listen(port, () => {
-  console.log(`App listening at ${host}:${port}`);
-});
+addListener(defaultChannel);
