@@ -10,7 +10,7 @@
 * Enter your NickName and join the channel you want to talk on. Default channel hl-default
 * timezone
 * * timeat Buenos_Aires
-* * timepopularity accepts timezones, prefixes and also suffixes (like the Vancouver example)
+* * timepopularity accepts timezones, prefixes and also suffixes (example Vancouver)
 * channel
 * * join channel_to_join
 * * switch oldchannel newchannel
