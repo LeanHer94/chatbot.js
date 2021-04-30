@@ -9,10 +9,10 @@
 * Open https://webchat.freenode.net/ on your browser
 * Enter your NickName and join the channel you want to talk on. Default channel hl-default
 * timezone
- * timeat Buenos_Aires
- * timepopularity accepts timezones, prefixes and also suffixes (like the Vancouver example)
+* * timeat Buenos_Aires
+* * timepopularity accepts timezones, prefixes and also suffixes (like the Vancouver example)
 * channel
- * join channel_to_join
- * switch oldchannel newchannel
+* * join channel_to_join
+* * switch oldchannel newchannel
 * general
- * commands
+* * commands
