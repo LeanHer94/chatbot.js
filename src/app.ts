@@ -9,7 +9,9 @@ interface Command {
   execute(channel: any, words: string[]): Promise<void>;
 }
 
-abstract class TimezoneCommand implements Command {
+//Can't make it work without creating subclasses that implement fn and msg dunno why.
+//Idea would be creting 2 TimezoneCommand objects that override that funcs but reuse execute
+class TimezoneCommand implements Command {
   async execute(channel: any, words: string[]): Promise<void> {
     client.say(channel, "Looking for your request...");
 
@@ -20,8 +22,13 @@ abstract class TimezoneCommand implements Command {
     client.say(channel, message);
   }
 
-  abstract fn(timezone: string): Promise<any>;
-  abstract msg(timezone: string, result: string | number | AppError): string;
+  fn(timezone: string): Promise<any> {
+    return Promise.resolve({});
+  }
+
+  msg(timezone: string, result: string | number | AppError): string {
+    return "";
+  }
 }
 
 const nick = "hl-timezone-guru";
@@ -72,20 +79,29 @@ const join = (channel: string) => {
 
 const commands: { [id: string]: { [id: string]: Command | TimezoneCommand } } = {
   timezone: {
-    timeat: <TimezoneCommand>{
-      fn: async (tz: any) => {
-        return await axios.post(`${api}/timeat`, { Timezone: tz });
-      },
-      msg: (timezone: string, result: string | number | AppError) =>
-        result instanceof AppError
-          ? result.description
-          : `Current time at ${timezone} is ${result}`
+    timeat: {
+      execute: async (channel: any, words: string[]): Promise<void> => {
+        client.say(channel, "Looking for your request...");
+
+        const timezone = words[2];
+        const result = await axios.post(`${api}/timeat`, { Timezone: timezone });
+        const message = result.data.description
+          ? result.data.description
+          : `Current time at ${timezone} is ${result.data}`;
+
+        client.say(channel, message);
+      }
     },
-    timepopularity: <TimezoneCommand>{
-      fn: async (tz: any) => {
-        return await axios.post(`${api}/timepopularity`, { Timezone: tz });
-      },
-      msg: (tz: any, result: any) => `${tz} has been searched ${result} times`
+    timepopularity: {
+      execute: async (channel: any, words: string[]): Promise<void> => {
+        client.say(channel, "Looking for your request...");
+
+        const timezone = words[2];
+        const result = await axios.post(`${api}/timepopularity`, { Timezone: timezone });
+        const message = `${timezone} has been searched ${result.data} times`;
+
+        client.say(channel, message);
+      }
     }
   },
   general: {
