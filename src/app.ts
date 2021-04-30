@@ -45,7 +45,9 @@ const commands: { [id: string]: Command } = {
 
 const client = new irc.Client(`${ircConfig.server}`, ircConfig.nick, {
   port: ircConfig.port,
-  retryCount: 3
+  retryCount: 3,
+  secure: true,
+  selfSigned: true
 });
 
 const app = express();
