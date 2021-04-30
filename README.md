@@ -1,8 +1,5 @@
 # chatbot.js ![status](https://github.com/leandro-hl/chatbot.js/actions/workflows/node.js.yml/badge.svg)
 
-## ENVIRONMENT
-* npm i to install dependencies
-
 ### ------ To Start Bot -----
 * npm run dev
 * F5 to attach vs code debugger to nodemon process 9229
