@@ -6,12 +6,6 @@ import { port, chatbotApi, maxChannels, host } from "./config";
 const api = chatbotApi;
 const irc = require("irc");
 
-const ircConfig = {
-  server: "irc.freenode.net",
-  port: 6667,
-  nick: "hl-timezone-guru"
-};
-
 type Function = (timezone: string) => Promise<any>;
 type Message = (timezone: string, result: string | number) => string;
 interface Command {
@@ -43,11 +37,13 @@ const commands: { [id: string]: Command } = {
   }
 };
 
-const client = new irc.Client(`${ircConfig.server}`, ircConfig.nick, {
-  port: ircConfig.port,
+const nick = "hl-timezone-guru";
+const client = new irc.Client("irc.freenode.net", nick, {
+  port: 6667,
   retryCount: 3,
-  secure: true,
-  selfSigned: true
+  sasl: true,
+  userName: nick,
+  password: "cckhXpydpJYupMgA1XuB"
 });
 
 const app = express();
@@ -100,7 +96,7 @@ const join = (res: any, channel: string) => {
         }
       });
 
-      res.send(`${ircConfig.nick} joined to channel ${channel}.`);
+      res.send(`${nick} joined to channel ${channel}.`);
     });
   } catch (err) {
     const apperr = new AppError(`${err.message}: ${err.stack}`, err);
