@@ -1,6 +1,6 @@
 import axios from "axios";
 import { AppError } from "error-api.hl/lib";
-import { chatbotApi, maxChannels, host } from "./config";
+import { chatbotApi, maxChannels } from "./config";
 
 const api = chatbotApi;
 const irc = require("irc");
