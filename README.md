@@ -2,10 +2,6 @@
 
 ## ENVIRONMENT
 * npm i to install dependencies
-* Ask for environment file .env
-
-### ------ To Generate SQL Databse Schema -------
-* Check chatbot.api.js
 
 ### ------ To Start Bot -----
 * npm run dev
@@ -14,6 +10,12 @@
 
 ### ------ To Talk with the bot ----
 * Open https://webchat.freenode.net/ on your browser
-* Enter your NickName and join the channel you want to talk on.
-* use join endpoint to tell to the bot which channel should it use. It's a get request so you can simply use your browser.
-* !timepopularity accepts timezones, prefixes and also suffixes (like the Vancouver example)
+* Enter your NickName and join the channel you want to talk on. Default channel hl-default
+* timezone
+** timeat Buenos_Aires
+** timepopularity accepts timezones, prefixes and also suffixes (like the Vancouver example)
+* channel
+** join channel_to_join
+** switch oldchannel newchannel
+* general
+** commands
